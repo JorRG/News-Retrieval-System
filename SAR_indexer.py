@@ -3,6 +3,7 @@ from glob import glob
 import re
 import pickle
 from nltk.stem import SnowballStemmer
+import time
 
 stemmer = SnowballStemmer('spanish')
 
@@ -172,6 +173,102 @@ def extract_voc_stopwords(data):
             dic = extract_terms(dic,docid,title,text)
     return dic
 
+def extract_voc_date_stopwords(data):
+    fes = open('stopwords_es.txt','r')
+    es = fes.read()
+    dicdate = {}
+    for i in data:
+        for j in i:
+            # j -> news in document i
+            # Document ID extraction
+            posid = j.index('<DOCID>')
+            posfinid=j.index('</DOCID>')
+            docid = del_symbols(j[posid+len('<DOCID>'):posfinid],'')
+            docid = docid.replace('EFE','')
+
+            # Title extraction
+            postext = j.index('<DATE>')
+            posfintext = j.index('</DATE>')
+            text = del_symbols(j[postext+len('<DATE>'):posfintext],' ')
+            text = text.lower()
+            text = remove_stopwords(text,es)
+
+            dicdate = extract_terms_mod(dicdate,docid,text)
+    return dicdate
+
+def extract_voc_category_stopwords(data):
+    fes = open('stopwords_es.txt','r')
+    es = fes.read()
+    diccategory = {}
+    for i in data:
+        for j in i:
+            # j -> news in document i
+            # Document ID extraction
+            posid = j.index('<DOCID>')
+            posfinid=j.index('</DOCID>')
+            docid = del_symbols(j[posid+len('<DOCID>'):posfinid],'')
+            docid = docid.replace('EFE','')
+
+            # Title extraction
+            postext = j.index('<CATEGORY>')
+            posfintext = j.index('</CATEGORY>')
+            text = del_symbols(j[postext+len('<CATEGORY>'):posfintext],' ')
+            text = text.lower()
+            text = remove_stopwords(text,es)
+
+            diccategory = extract_terms_mod(diccategory,docid,text)
+    return diccategory
+
+def extract_voc_head_stopwords(data):
+    fes = open('stopwords_es.txt','r')
+    es = fes.read()
+    dichead = {}
+    for i in data:
+        for j in i:
+            # j -> news in document i
+            # Document ID extraction
+            posid = j.index('<DOCID>')
+            posfinid=j.index('</DOCID>')
+            docid = del_symbols(j[posid+len('<DOCID>'):posfinid],'')
+            docid = docid.replace('EFE','')
+
+            # Title extraction
+            postext = j.index('<TITLE>')
+            posfintext = j.index('</TITLE>')
+            text = del_symbols(j[postext+len('<TITLE>'):posfintext],' ')
+            text = text.lower()
+            text = remove_stopwords(text,es)
+
+            dichead = extract_terms_mod(dichead,docid,text)
+    return dichead
+
+def extract_voc_text_stopwords(data):
+    fes = open('stopwords_es.txt','r')
+    es = fes.read()
+    dictext = {}
+    for i in data:
+        for j in i:
+            # j -> news in document i
+            # Document ID extraction
+            posid = j.index('<DOCID>')
+            posfinid=j.index('</DOCID>')
+            docid = del_symbols(j[posid+len('<DOCID>'):posfinid],'')
+            docid = docid.replace('EFE','')
+
+            # Title extraction
+            postext = j.index('<TEXT>')
+            posfintext = j.index('</TEXT>')
+            text = del_symbols(j[postext+len('<TEXT>'):posfintext],' ')
+            text = text.lower()
+            text = remove_stopwords(text,es)
+
+            dictext = extract_terms_mod(dictext,docid,text)
+    return dictext
+
+
+
+
+
 def extract_terms_mod(dic,docid,text):
 
     # Splitting title and text per term
@@ -240,11 +337,11 @@ if __name__=="__main__":
         # Call to dictionary extraction
         if len(sys.argv)>3:
             if sys.argv[4] == 'True':
-                dicc = extract_voc(data_news)
-                headdic = extract_voc_head(data_news)
-                textdic = extract_voc_text(data_news)
-                categorydic = extract_voc_category(data_news)
-                datedic = extract_voc_date(data_news)
+                dicc = extract_voc_stopwords(data_news)
+                headdic = extract_voc_head_stopwords(data_news)
+                textdic = extract_voc_text_stopwords(data_news)
+                categorydic = extract_voc_category_stopwords(data_news)
+                datedic = extract_voc_date_stopwords(data_news)
             else:
                 dicc = extract_voc(data_news)
                 headdic = extract_voc_head(data_news)
@@ -268,10 +365,11 @@ if __name__=="__main__":
                     post = dicstem[stemmed]
                     if i not in post:
                         dicstem[stemmed].append(i)
-            pickle.dump((dicc,headdic,textdic,categorydic,datedic,sys.argv[1],dicstem),open(sys.argv[2],"wb"))
+            pickle.dump((dicc,headdic,textdic,categorydic,datedic,sys.argv[1],dicstem,sys.argv[4]),open(sys.argv[2],"wb"))
+
 
         # Save dictionary to the file given
         #
         # Notes: .p extension is preferable
         else:
-            pickle.dump((dicc,headdic,textdic,categorydic,datedic,sys.argv[1]),open(sys.argv[2],"wb"))
+            pickle.dump((dicc,headdic,textdic,categorydic,datedic,sys.argv[1],sys.argv[4]),open(sys.argv[2],"wb"))

@@ -64,126 +64,32 @@ def search_results(var,dic,headdic,textdic,categorydic,datedic,corpus):
     data = get_data(files)
     data = extract_news(data)
     data = index_news(data)
-    var = var.split()
     for i in var:
-        if 'and'==i:
-            ind = var.index(i)
-            n = var[ind+1]
-            if 'category:' in n:
-                i = i.replace('category:','')
-                if i in categorydic:
-                    ocurrences = categorydic[n]
-                    inter.append(list(set(ocurrences)))
-            elif 'headline:' in n:
-                i = i.replace('headline:','')
-                if i in headdic:
-                    ocurrences = headdic[n]
-                    inter.append(list(set(ocurrences)))
-            elif 'text:' in n:
-                i = i.replace('text:','')
-                if i in textdic:
-                    ocurrences = textdic[n]
-                    inter.append(list(set(ocurrences)))
-            elif 'date:' in n:
-                i = i.replace('date:','')
-                if i in datedic:
-                    ocurrences = datedic[n]
-                    inter.append(list(set(ocurrences)))
-            else:
-                if n in dic:
-                    ocurrences = dic[n]
-                    inter.append(list(set(ocurrences)))
-            pos = len(inter)
-            inter[pos-1] = operador_and(inter[pos-2],inter[pos-1])
-
-        elif 'or'==i:
-            ind = var.index(i)
-            n = var[ind+1]
-            if 'category:' in n:
-                i = i.replace('category:','')
-                if i in categorydic:
-                    ocurrences = categorydic[n]
-                    inter.append(list(set(ocurrences)))
-            elif 'headline:' in n:
-                i = i.replace('headline:','')
-                if i in headdic:
-                    ocurrences = headdic[n]
-                    inter.append(list(set(ocurrences)))
-            elif 'text:' in n:
-                i = i.replace('text:','')
-                if i in textdic:
-                    ocurrences = textdic[n]
-                    inter.append(list(set(ocurrences)))
-            elif 'date:' in n:
-                i = i.replace('date:','')
-                if i in datedic:
-                    ocurrences = datedic[n]
-                    inter.append(list(set(ocurrences)))
-            else:
-                if n in dic:
-                    ocurrences = dic[n]
-                    inter.append(list(set(ocurrences)))
-            pos = len(inter)
-            inter[pos-1] = operador_or(inter[pos-2],inter[pos-1])
-
-        elif i=='not':
-            ind = var.index(i)
-            n = var[ind+1]
-            if 'category:' in n:
-                i = i.replace('category:','')
-                if i not in categorydic:
-                    ocurrences = categorydic[n]
-                    inter.append(list(set(ocurrences)))
-            elif 'headline:' in n:
-                i = i.replace('headline:','')
-                if i not in headdic:
-                    ocurrences = headdic[n]
-                    inter.append(list(set(ocurrences)))
-            elif 'text:' in n:
-                i = i.replace('text:','')
-                if i not in textdic:
-                    ocurrences = textdic[n]
-                    inter.append(list(set(ocurrences)))
-            elif 'date:' in n:
-                i = i.replace('date:','')
-                if i not in datedic:
-                    ocurrences = datedic[n]
-                    inter.append(list(set(ocurrences)))
-            else:
-                if n not in dic:
-                    ocurrences = dic[n]
-                    inter.append(list(set(ocurrences)))
-            pos = len(inter)
-            print(pos)
-            var.pop(var.index(n))
-            inter[pos-1] = operador_not(inter[pos-2],inter[pos-1])
-
+        if 'category:' in i:
+            i = i.replace('category:','')
+            if i in categorydic:
+                ocurrences = categorydic[i]
+                inter.append(list(set(ocurrences)))
+        elif 'headline:' in i:
+            i = i.replace('headline:','')
+            if i in headdic:
+                ocurrences = headdic[i]
+                inter.append(list(set(ocurrences)))
+        elif 'text:' in i:
+            i = i.replace('text:','')
+            if i in textdic:
+                ocurrences = textdic[i]
+                inter.append(list(set(ocurrences)))
+        elif 'date:' in i:
+            i = i.replace('date:','')
+            if i in datedic:
+                ocurrences = datedic[i]
+                inter.append(list(set(ocurrences)))
         else:
-            if 'category:' in i:
-                i = i.replace('category:','')
-                if i in categorydic:
-                    ocurrences = categorydic[i]
-                    inter.append(list(set(ocurrences)))
-            elif 'headline:' in i:
-                i = i.replace('headline:','')
-                if i in headdic:
-                    ocurrences = headdic[i]
-                    inter.append(list(set(ocurrences)))
-            elif 'text:' in i:
-                i = i.replace('text:','')
-                if i in textdic:
-                    ocurrences = textdic[i]
-                    inter.append(list(set(ocurrences)))
-            elif 'date:' in i:
-                i = i.replace('date:','')
-                if i in datedic:
-                    ocurrences = datedic[i]
-                    inter.append(list(set(ocurrences)))
-            else:
-                if i in dic:
-                    print(i)
-                    ocurrences = dic[i]
-                    inter.append(list(set(ocurrences)))
+            if i in dic:
+                ocurrences = dic[i]
+                inter.append(list(set(ocurrences)))
+
     if len(inter) == 0:
         print('News retrieved: 0')
         return 0
@@ -195,6 +101,77 @@ def search_results(var,dic,headdic,textdic,categorydic,datedic,corpus):
     print()
     info = show_info(show,data,var)
     return info
+
+def search_results_bool(var,dic,headdic,textdic,categorydic,datedic,corpus):
+    inter = []
+    url = './'+corpus+'/*.sgml'
+    # Matching urls
+    files = glob(url)
+    # Data is a list containing the documents as strings
+    data = get_data(files)
+    data = extract_news(data)
+    data = index_news(data)
+    aux = []
+
+
+    for i in var:
+        if 'and' != i and 'or'!=i and 'not'!=i:
+            if 'category:' in i:
+                i = i.replace('category:','')
+                if i in categorydic:
+                    ocurrences = categorydic[i]
+                    aux.append(list(set(ocurrences)))
+            elif 'headline:' in i:
+                i = i.replace('headline:','')
+                if i in headdic:
+                    ocurrences = headdic[i]
+                    aux.append(list(set(ocurrences)))
+            elif 'text:' in i:
+                i = i.replace('text:','')
+                if i in textdic:
+                    ocurrences = textdic[i]
+                    aux.append(list(set(ocurrences)))
+            elif 'date:' in i:
+                i = i.replace('date:','')
+                if i in datedic:
+                    ocurrences = datedic[i]
+                    aux.append(list(set(ocurrences)))
+            else:
+                if i in dic:
+                    ocurrences = dic[i]
+                    aux.append(list(set(ocurrences)))
+        else:
+            aux.append(i)
+
+        resaux = []
+
+        for a in range(0,len(aux)-1):
+            if aux[a]=='and':
+                if resaux==[]:
+                    resaux = operador_and(aux[a-1],aux[a+1])
+                else:
+                    resaux = operador_and(resaux,aux[a+1])
+            if aux[a]=='or':
+                if resaux==[]:
+                    resaux = operador_or(aux[a-1],aux[a+1])
+                else:
+                    resaux = operador_or(resaux,aux[a+1])
+
+        print(len(resaux))
+
+"""
+    if len(inter) == 0:
+        print('News retrieved: 0')
+        return 0
+
+    show = constr_and(inter)
+    filescont = list(set(get_files_containing(files,show,corpus)))
+    print('Files :'+str(filescont))
+    print('News retrieved: '+str(len(show)))
+    print()
+    info = show_info(show,data,var)
+    return info
+    """
 
 def operador_not(p1,p2):
     p1.sort()
@@ -225,10 +202,23 @@ def constr_and(inter):
         aux[1] = operador_and(op1,op2)
         aux.pop(0)
         tam-=1
-    return aux[0]
+    return list(set(aux[0]))
+
+def constr_or(inter):
+    aux = list(inter)
+    tam = len(aux)
+    if tam == 1:
+        return aux[0]
+    while tam>1:
+        op1 = aux[0]
+        op2 = aux[1]
+        aux[1] = operador_or(op1,op2)
+        aux.pop(0)
+        tam-=1
+    return list(set(aux[0]))
 
 def search_results_stemmed(var,dic,headdic,textdic,categorydic,datedic,corpus):
-    inter = []
+
     pals = []
     url = './'+corpus+'/*.sgml'
     # Matching urls
@@ -237,90 +227,26 @@ def search_results_stemmed(var,dic,headdic,textdic,categorydic,datedic,corpus):
     data = get_data(files)
     data = extract_news(data)
     data = index_news(data)
-
-    var = var.split()
+    ands = []
     for i in var:
-        if 'category:' in i:
-            i = i.replace('category:','')
-            ste = stemmer.stem(i)
-            try:
-                p = dicstem[ste]
-                for j in p:
-                    if j in categorydic:
-                        ocurrences = categorydic[i]
-                        inter.append(list(set(ocurrences)))
-            except Exception as e:
-                pass
+        inter = []
+        for j in i:
+            if j in dic:
+                ocurrences = dic[j]
+                inter.append(list(set(ocurrences)))
+        ands.append(list(set(constr_or(inter))))
 
-        elif 'headline:' in i:
-            i = i.replace('headline:','')
-            ste = stemmer.stem(i)
-            try:
-                p = dicstem[ste]
-                for j in p:
-                    if j in headdic:
-                        ocurrences = headdic[i]
-                        inter.append(list(set(ocurrences)))
-            except Exception as e:
-                pass
-        elif 'text:' in i:
-            i = i.replace('text:','')
-            ste = stemmer.stem(i)
-            try:
-                p = dicstem[ste]
-                for j in p:
-                    if j in textdic:
-                        ocurrences = textdic[i]
-                        inter.append(list(set(ocurrences)))
-            except Exception as e:
-                raise
-
-        elif 'date:' in i:
-            i = i.replace('date:','')
-            ste = stemmer.stem(i)
-            try:
-                p = dicstem[ste]
-                for j in p:
-                    if j in datedic:
-                        ocurrences = datedic[i]
-                        inter.append(list(set(ocurrences)))
-            except Exception as e:
-                raise
-
-        else:
-            ste = stemmer.stem(i)
-            p = dicstem[ste]
-            for j in p:
-                pals.append(j)
-
-    for x in pals:
-        if x in dic:
-            ocurrences = dic[x]
-            inter.append(list(set(ocurrences)))
-    if len(inter) == 0:
+    if(ands)==[]:
         print('News retrieved: 0')
         return 0
-    aux = list(inter)
-    l = len(inter)-1
-    if l == 0:
-        aux[0] = inter[0]
     else:
-        while l>0:
-            op1 = aux[0]
-            print('op1 :'+str(op1))
-            op2 = aux[1]
-            print('op2 :'+str(op2))
-
-            aux[1] = operador_and(op1,op2)
-            aux.pop(0)
-            l-=1
-
-    print('Files :'+str(list(set(get_files_containing(files,aux[0],corpus)))))
-    print('News retrieved: '+str(len(aux[0])))
-    print()
-
-    info = show_info(aux[0],data,var)
-    return info
+        show = constr_and(ands)
+        filescont = list(set(get_files_containing(files,show,corpus)))
+        print('Files :'+str(filescont))
+        print('News retrieved: '+str(len(show)))
+        print()
+        info = show_info(show,data,var)
+        return info
 
 def operador_and(p1,p2):
     p1.sort()
@@ -348,8 +274,6 @@ def operador_or(p1,p2):
     resp.sort()
     return resp
 
-
-
 def get_files_containing(files,docids,corpus):
     f = []
     for i in docids:
@@ -373,6 +297,7 @@ def show_info(docids,data,var):
         info = show_ten_titles(docids,data)
     return info
 
+#This method sorts the docs retrieved based on its relevance
 def sort_docs(docids,query,data):
     scores = []
     lengths = []
@@ -393,7 +318,6 @@ def sort_docs(docids,query,data):
         scores.append(wtq*wtd)
     for s,l in list(zip(scores,lengths)):
         ind = scores.index(s)
-        print(type(s))
         scores[ind] = s/l
     return [docids for (scores,docids) in sorted(zip(scores,docids),reverse=True)]
 
@@ -411,7 +335,7 @@ def show_text_title(docids, data):
             print(j)
 
 
-def show_title_snippet(docids, data,var):
+def show_title_snippet(docids,data,var):
     info = []
     for i in docids:
         info.append(data[i])
@@ -445,6 +369,8 @@ def show_ten_titles(docids,data):
 if __name__=="__main__":
     if len(sys.argv) > 1:
         # Dictionary load from file given
+        fes = open('stopwords_es.txt','r')
+        es = fes.read()
         obj = pickle.load(open(sys.argv[1],"rb"))
         dic=obj[0]
         corpus = obj[5]
@@ -452,7 +378,7 @@ if __name__=="__main__":
         textdic = obj[2]
         categorydic = obj[3]
         datedic = obj[4]
-        if len(obj)==6:
+        if len(obj)==7:
             print('\nSAR News Searcher')
             print('-------------------------------------------------------------\n')
             print('Welcome to SAR News Search Engine,')
@@ -462,12 +388,21 @@ if __name__=="__main__":
                     print("You've finished the app, see you again!")
                     break
                 else:
+                    stop = obj[6]
                     var = str(var).lower()
+                    var = var.split()
+                    if stop == 'True':
+                        for s in var:
+                            if s in es:
+                                var.remove(s)
+                    if 'and' in var or 'or' in var or 'not' in var:
+                        search_results_bool(var,dic,headdic,textdic,categorydic,datedic,corpus)
                     print('\033[1m'+'Results: '+'\n'+'\033[0m')
                     search_results(var,dic,headdic,textdic,categorydic,datedic,corpus)
                     var = input('Introduce another search or press Enter to exit: ')
-        if len(obj)==7:
+        if len(obj)==8:
             dicstem = obj[6]
+            stop = obj[7]
             print('\nSAR News Searcher')
             print('-------------------------------------------------------------\n')
             print('Welcome to SAR News Search Engine,')
@@ -479,6 +414,21 @@ if __name__=="__main__":
                     break
                 else:
                     var = str(var).lower()
+                    var = var.split()
+                    if stop == 'True':
+                        for s in var:
+                            if s in es:
+                                var.remove(s)
+
+                    laux = []
+                    for i in var:
+                        ste = stemmer.stem(i)
+                        if ste in dicstem:
+                            oc = dicstem[ste]
+                            laux.append(oc)
+                    print(var)
+                    if 'and' in var or 'or' in var or 'not' in var:
+                        search_results_bool(var,dic,headdic,textdic,categorydic,datedic,corpus)
                     print('\033[1m'+'Results: '+'\n'+'\033[0m')
-                    search_results_stemmed(var,dic,headdic,textdic,categorydic,datedic,corpus)
+                    search_results_stemmed(laux,dic,headdic,textdic,categorydic,datedic,corpus)
                     var = input('Introduce another search or press Enter to exit: ')
